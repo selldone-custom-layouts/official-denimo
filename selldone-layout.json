@@ -1,0 +1,28 @@
+{
+  "name": "Denimo Casual Fashion",
+  "shop": "Fashioni",
+  "kind": "Fashion · single shop",
+  "summary": "Casual denim-first fashion: promo bar, mega menus by audience, campaign hero, split and wide banners, category and audience tiles, rails, quick-add cards, colour circles and size chips.",
+  "live": "https://denimo.selldone.shop",
+  "cover": "docs/screenshots/cover.jpg",
+  "screenshots": [
+    "docs/screenshots/desktop-home.jpg",
+    "docs/screenshots/desktop-category.jpg",
+    "docs/screenshots/desktop-product.jpg",
+    "docs/screenshots/desktop-cart.jpg",
+    "docs/screenshots/phone-home.jpg",
+    "docs/screenshots/phone-category.jpg",
+    "docs/screenshots/phone-product.jpg",
+    "docs/screenshots/phone-cart.jpg"
+  ],
+  "tags": [
+    "fashion",
+    "clothing",
+    "single-vendor",
+    "light",
+    "rtl"
+  ],
+  "package": "denimo-fashion",
+  "base": "selldone/storefront",
+  "status": "draft"
+}

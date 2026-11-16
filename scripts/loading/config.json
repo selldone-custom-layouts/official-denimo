@@ -1,0 +1,15 @@
+{
+ "name": "Fashioni",
+ "art": "none",
+ "bg": "#ffffff",
+ "ink": "#1c222b",
+ "muted": "#575e69",
+ "accent": "#2a4a78",
+ "line": "#d6e1f1",
+ "serif": "Archivo:wght@800",
+ "sans": "DM+Sans:wght@700",
+ "serifCss": "\"Archivo\",system-ui,sans-serif",
+ "sansCss": "\"DM Sans\",system-ui,sans-serif",
+ "nameWeight": 800,
+ "nameTracking": ".14em"
+}

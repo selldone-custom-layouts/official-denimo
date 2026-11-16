@@ -1,0 +1,255 @@
+/* Denimo: dn-listing (plain CSS; tokens --ly-* only, both modes come from the tokens)
+   The listing (LyListing.vue: the slim title, "Shop by", Filter + Sort, the grid, About, the capsules) and the
+   product card (LyCard.vue + DnQuick.vue). One shape language: capsules for buttons, fields, chips and quick-add,
+   circles for swatches and icon buttons, --ly-r-pn for photos and sheets, --ly-r-in for size chips and inner
+   plates. Rings are inset; hover changes colour only. */
+
+/* My own controls measure with their padding. */
+.ly .dn-ls-sz, .ly .dn-ls-col, .ly .dn-ls-fbtn, .ly .dn-ls-cap, .ly .dn-ls-tree .tr-a, .ly .dn-pc .pc-fav, .ly .dn-pc .pc-plus, .ly .dn-pc .pc-save, .ly .dn-pc .dn-qa, .ly .dn-pc .dn-qa .qa-c, .ly .dn-pc .dn-qa .qa-add, .ly .dn-pc .dn-qa .qa-x { box-sizing: border-box; }
+
+/* ━━━━━━━━━━━━ The slim title ━━━━━━━━━━━━ */
+.ly .dn-ls-t { background: var(--ly-bg); color: var(--ly-ink); }
+.ly .dn-ls-tin { display: flex; flex-direction: column; align-items: center; text-align: center; padding-block: 22px 18px; }
+.ly .dn-ls-t .crumbs ol { justify-content: center; font-size: 11px; letter-spacing: .14em; }
+.ly .dn-ls-h { margin-top: 10px; font-family: var(--ly-serif); font-weight: var(--ly-h1-weight); font-size: 30px; line-height: 1.15; letter-spacing: .01em; color: var(--ly-ink); text-wrap: balance; overflow-wrap: anywhere; max-width: 32ch; }
+.ly .dn-ls-lead { margin-top: 6px; color: var(--ly-muted); font-size: 14px; }
+.ly .dn-ls-srch { display: flex; align-items: center; gap: 8px; width: 100%; max-width: 560px; margin-top: 16px; padding-block: 4px; padding-inline: 18px 4px; border-radius: 999px; background: var(--ly-field); box-shadow: inset 0 0 0 1.5px var(--ly-field-line); color: var(--ly-muted); }
+.ly .dn-ls-srch:focus-within { box-shadow: inset 0 0 0 2px var(--ly-ring); }
+.ly .dn-ls-srch > .i { width: 18px; height: 18px; flex: none; }
+.ly .dn-ls-srch input { flex: 1; min-width: 0; height: 40px; border: 0; background: none; color: var(--ly-ink); font-size: 15px; }
+.ly .dn-ls-srch input:focus-visible { box-shadow: none; outline: 0; }
+.ly .dn-ls-srch .btn { border-radius: 999px; min-height: 40px; }
+
+.ly .dn-ls-sec { padding-block: 6px 80px; }
+
+/* ━━━━━━━━━━━━ Columns ━━━━━━━━━━━━ */
+@media (min-width: 1200px) {
+  .ly .dn-ls-lst.has-fp .lst-in { grid-template-columns: 280px minmax(0, 1fr); gap: 44px; }
+  /* the left column: sticky under the header, scrolling on its own when taller than the window */
+  .dn-ls-fp.fp.panel:is(.ly, .ly *) { position: sticky; top: calc(var(--dn-ls-top, var(--ly-hdr-h)) + 16px); max-height: calc(100dvh - var(--dn-ls-top, var(--ly-hdr-h)) - 32px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--ly-line-2) transparent; background: none; border-radius: 0; }
+  .dn-ls-fp:is(.ly, .ly *) .fp-body { padding-block: 4px 28px; padding-inline: 0 10px; gap: 0; }
+}
+
+/* ━━━━━━━━━━━━ Shop by ━━━━━━━━━━━━ */
+.ly .dn-ls-by { padding-bottom: 6px; }
+.ly .dn-ls-byh, .dn-ls-fp:is(.ly, .ly *) .fp-h { font-family: var(--ly-serif); font-weight: var(--ly-h-weight); font-size: 19px; line-height: 1.25; color: var(--ly-ink); }
+.ly .dn-ls-byh { margin-bottom: 8px; }
+.ly .dn-ls-tree .tr-l { display: grid; gap: 0; }
+.ly .dn-ls-tree .tr-types { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--ly-line); }
+.ly .dn-ls-tree .tr-sub { padding-inline-start: 14px; }
+.ly .dn-ls-tree .tr-a { display: block; width: calc(100% + 16px); margin-inline: -8px; padding: 6px 8px; border-radius: var(--ly-r-in); text-align: start; font: 500 14.5px/1.35 var(--ly-sans); color: var(--ly-ink); background: none; }
+.ly .dn-ls-tree .tr-sub .tr-a { font-size: 14px; color: var(--ly-muted); }
+.ly .dn-ls-tree .tr-a:hover { color: var(--ly-act-text); }
+.ly .dn-ls-tree .tr-a.on { font-weight: 800; color: var(--ly-ink); }
+.ly .dn-ls-tree .tr-a:focus-visible { outline: 0; box-shadow: inset 0 0 0 2px var(--ly-ring); }
+
+/* ━━━━━━━━━━━━ Filter + Sort ━━━━━━━━━━━━ */
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-fptop { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 22px; padding-bottom: 12px; }
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-fg { padding-block: 2px; border-top: 1px solid var(--ly-line); }
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-fg:last-child { border-bottom: 1px solid var(--ly-line); }
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-fg > summary { min-height: 50px; padding-inline: 6px; margin-inline: -6px; font: 600 14.5px/1.3 var(--ly-sans); color: var(--ly-ink); border-radius: var(--ly-r-in); }
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-fg > summary:hover { color: var(--ly-act-text); }
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-fg > summary:focus-visible { outline: 0; box-shadow: inset 0 0 0 2px var(--ly-ring); }
+.dn-ls-fp:is(.ly, .ly *) .fg-pm { position: relative; width: 18px; height: 18px; flex: none; }
+.dn-ls-fp:is(.ly, .ly *) .fg-pm .i { position: absolute; inset: 0; width: 18px; height: 18px; }
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-fg .pm-m, .dn-ls-fp:is(.ly, .ly *) .dn-ls-fg[open] .pm-p { display: none; }
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-fg[open] .pm-m { display: block; }
+.dn-ls-fp:is(.ly, .ly *) .fg-n { display: inline-grid; place-items: center; min-width: 20px; height: 20px; margin-inline-start: 8px; padding: 0 6px; border-radius: 999px; background: var(--ly-act); color: var(--ly-act-on); font-size: 11px; font-weight: 700; vertical-align: 1px; }
+.dn-ls-fp:is(.ly, .ly *) .fg-st { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; }
+.dn-ls-fp:is(.ly, .ly *) .fg-v { font-weight: 500; font-size: 13.5px; color: var(--ly-muted); }
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-fg > .fg-body { padding-block: 2px 16px; }
+.dn-ls-fp:is(.ly, .ly *) .fg-more { margin-top: 8px; }
+
+/* Size: chips in ladder order */
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-sizes { display: flex; flex-wrap: wrap; gap: 8px; }
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-sz { display: inline-grid; place-items: center; min-width: 50px; height: 40px; padding: 0 12px; border-radius: var(--ly-r-in); background: var(--ly-bg); color: var(--ly-ink); box-shadow: inset 0 0 0 1px var(--ly-line-2); font: 600 13.5px/1 var(--ly-sans); white-space: nowrap; transition: background-color .15s, color .15s; }
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-sz:hover { color: var(--ly-act-text); }
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-sz[aria-pressed="true"] { background: var(--ly-act); color: var(--ly-act-on); box-shadow: none; }
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-sz:focus-visible { outline: 0; box-shadow: inset 0 0 0 2px var(--ly-ring), inset 0 0 0 4px var(--ly-ring-in); }
+
+/* Colour: circles with their names */
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-cols { display: grid; grid-template-columns: repeat(auto-fill, minmax(62px, 1fr)); gap: 6px 4px; }
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-col { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 6px 2px 4px; border-radius: var(--ly-r-in); background: none; color: var(--ly-ink); font: 500 11.5px/1.25 var(--ly-sans); text-align: center; }
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-col:hover { color: var(--ly-act-text); }
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-col:focus-visible { outline: 0; box-shadow: inset 0 0 0 2px var(--ly-ring); }
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-sw { width: 32px; height: 32px; flex: none; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--ly-line-2); }
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-col[aria-pressed="true"] .dn-ls-sw { box-shadow: inset 0 0 0 2px var(--ly-ring), inset 0 0 0 5px var(--ly-ring-in); }
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-col[aria-pressed="true"] .dn-ls-cn { font-weight: 700; }
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-cn { max-width: 100%; overflow-wrap: anywhere; }
+
+/* Price: the base's two thumbs, short boxes as capsules */
+.dn-ls-fp:is(.ly, .ly *) .fg-price { padding-top: 8px; }
+.dn-ls-fp:is(.ly, .ly *) .mbox { border-radius: 999px; width: 96px; padding: 0 14px; }
+
+/* On sale: a switch in the family's capsule */
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-sale { display: flex; align-items: center; justify-content: space-between; min-height: 54px; padding-block: 0; }
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-sale .fg-l { margin: 0; font-size: 14.5px; }
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-sale .switch { border-radius: 999px; }
+
+/* Sort by: a radio list */
+.dn-ls-fp:is(.ly, .ly *) .dn-ls-sort { display: grid; gap: 2px; }
+.dn-ls-fp:is(.ly, .ly *) .rd-l { display: grid; grid-template-columns: 20px minmax(0, 1fr); align-items: center; gap: 12px; padding: 7px 4px; border-radius: var(--ly-r-in); cursor: pointer; font-size: 14px; line-height: 1.35; color: var(--ly-ink); }
+.dn-ls-fp:is(.ly, .ly *) .rd-l:hover { color: var(--ly-act-text); }
+.dn-ls-fp:is(.ly, .ly *) .rd { -webkit-appearance: none; appearance: none; margin: 0; width: 20px; height: 20px; border-radius: 50%; background: var(--ly-field); box-shadow: inset 0 0 0 1.5px var(--ly-field-line); cursor: pointer; }
+.dn-ls-fp:is(.ly, .ly *) .rd:checked { color: var(--ly-act-on); background: var(--ly-act); box-shadow: inset 0 0 0 2px var(--ly-act), inset 0 0 0 5px var(--ly-field); }
+.dn-ls-fp:is(.ly, .ly *) .rd:focus-visible { outline: 0; box-shadow: inset 0 0 0 2px var(--ly-ring), inset 0 0 0 4px var(--ly-ring-in); }
+.dn-ls-fp:is(.ly, .ly *) .rd:checked:focus-visible { box-shadow: inset 0 0 0 2px var(--ly-ring), inset 0 0 0 5px var(--ly-ring-in); }
+.dn-ls-fp:is(.ly, .ly *) .rd:checked + span { font-weight: 700; }
+
+/* The side sheet (below 1200px) */
+@media (max-width: 1199px) {
+  .dn-ls-fp:is(.ly, .ly *) .fp-body { gap: 0; padding-top: 4px; }
+  .dn-ls-fp:is(.ly, .ly *) .fp-body > .dn-ls-fg:first-child { border-top: 0; }
+  .dn-ls-fp:is(.ly, .ly *) .fp-ft .btn { border-radius: 999px; }
+  .dn-ls-fp:is(.ly, .ly *) .dn-ls-fptop { display: none; }
+}
+
+/* ━━━━━━━━━━━━ The bar: Filter + Sort (below 1200px, kept on screen), the active filters ━━━━━━━━━━━━ */
+.ly .dn-ls-bar { gap: 10px 12px; margin-bottom: 20px; }
+.ly .dn-ls-bar .actf { align-items: center; }
+.ly .dn-ls-bar .chip.on { min-height: 34px; gap: 6px; padding-inline: 14px 10px; border-radius: 999px; background: var(--ly-act-soft); color: var(--ly-soft-ink); font-size: 13px; }
+.ly .dn-ls-bar .chip.on:hover { color: var(--ly-ink); }
+.ly .dn-ls-bar .chip.on .i { width: 14px; height: 14px; }
+.ly .dn-ls-bar .chip.on:focus-visible { outline: 0; box-shadow: inset 0 0 0 2px var(--ly-ring); }
+.ly .dn-ls-clr { min-height: 34px; padding-inline: 8px; border-radius: 999px; }
+.ly .dn-ls-fbtn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 46px; padding: 0 24px; border-radius: 999px; background: var(--ly-bg); color: var(--ly-ink); box-shadow: inset 0 0 0 1.5px var(--ly-ink); font: 700 13px/1 var(--ly-sans); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+.ly .dn-ls-fbtn:hover { color: var(--ly-act-text); box-shadow: inset 0 0 0 1.5px var(--ly-act-text); }
+.ly .dn-ls-fbtn:focus-visible { outline: 0; box-shadow: inset 0 0 0 2px var(--ly-ring), inset 0 0 0 4px var(--ly-ring-in); }
+.ly .dn-ls-fbtn .i { width: 17px; height: 17px; }
+.ly .dn-ls-fbtn .fcount { border-radius: 999px; }
+@media (max-width: 1199px) {
+  .ly .dn-ls-bar { position: sticky; top: var(--dn-ls-top, var(--ly-hdr-h)); z-index: 20; margin-inline: calc(var(--ly-gut) * -1); padding-block: 8px; padding-inline: var(--ly-gut); background: var(--ly-bg); }
+}
+@media (max-width: 760px) {
+  .ly .dn-ls-bar .dn-ls-fbtn { flex: 1 1 100%; }
+  .ly .dn-ls-bar .actf { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .ly .dn-ls-bar .actf::-webkit-scrollbar { display: none; }
+  .ly .dn-ls-bar .actf .chip { flex: none; }
+}
+
+/* ━━━━━━━━━━━━ The grid: 2 / 3 / 4 columns from the list's own width ━━━━━━━━━━━━ */
+.ly .dn-ls-lst .lst-main { container: dnl / inline-size; }
+.ly.dn-ls .dn-ls-lst .grid { --ly-cols: 3; gap: 36px 16px; }
+@container dnl (min-width: 1000px) { .ly.dn-ls .dn-ls-lst .grid { --ly-cols: 4; } }
+@container dnl (max-width: 599px) { .ly.dn-ls .dn-ls-lst .grid { --ly-cols: 2; gap: 28px 10px; } }
+.ly.dn-ls .ly-skel .pc-plate { aspect-ratio: 3 / 4; }
+.ly.dn-ls .ly-skel .sk-l { margin-inline: 0; }
+
+/* ━━━━━━━━━━━━ The card ━━━━━━━━━━━━ */
+.ly .dn-pc { padding: 0; background: none; border-radius: 0; }
+.ly .dn-pc .pc-plate { aspect-ratio: 3 / 4; border-radius: var(--ly-r-pn); background: var(--ly-plate); overflow: hidden; }
+.ly .dn-pc .pc-ph { padding: 0; }
+.ly .dn-pc .pc-ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; transition: opacity .25s ease; }
+/* white product grounds melt into the family's plate; in dark mode the plate is the family's lightest tint, so a
+   photo shot on white never sits as a white box on a dark plate */
+.ly .dn-pc .pc-ph img { mix-blend-mode: multiply; }
+html.ly-dark .ly .dn-pc .pc-plate { background: var(--ly-dark-ink); }
+.ly .dn-pc .pc-im2 { opacity: 0; }
+@media (hover: hover) and (pointer: fine) {
+  .ly .dn-pc.has-2:hover .pc-im2 { opacity: 1; }
+  .ly .dn-pc.has-2:hover .pc-im { opacity: 0; }
+}
+
+/* Save n% (top-left) and ♡ (top-right): never touching each other or any words */
+.ly .dn-pc .pc-save { position: absolute; top: 10px; inset-inline-start: 10px; z-index: 1; max-width: calc(100% - 66px); padding: 5px 10px; border-radius: 999px; background: var(--ly-paper); color: var(--ly-soft-ink); font: 700 11.5px/1.15 var(--ly-sans); letter-spacing: .01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+.ly .dn-pc .pc-fav { position: absolute; top: 8px; inset-inline-end: 8px; z-index: 1; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; background: var(--ly-paper); color: var(--ly-ink); transition: color .15s; }
+.ly .dn-pc .pc-fav .i { width: 18px; height: 18px; }
+.ly .dn-pc .pc-fav:hover { color: var(--ly-act-text); }
+.ly .dn-pc .pc-fav[aria-pressed="true"] { color: var(--ly-act-text); }
+.ly .dn-pc .pc-fav[aria-pressed="true"] .i { fill: currentColor; }
+.ly .dn-pc .pc-fav:focus-visible { outline: 0; box-shadow: inset 0 0 0 2px var(--ly-ring), inset 0 0 0 4px var(--ly-ring-in); }
+
+/* Quick-add: a strip at the photo's foot (hover / keyboard focus on pointer devices; the "+" on touch screens) */
+.ly .dn-pc .dn-qa { position: absolute; inset-inline: 8px; bottom: 8px; z-index: 2; padding: 10px; border-radius: var(--ly-r-in); background: var(--ly-paper); color: var(--ly-ink); visibility: hidden; opacity: 0; transition: opacity .15s ease, visibility 0s linear .15s; }
+.ly .dn-pc .dn-qa.open, .ly .dn-pc .dn-qa.held { visibility: visible; opacity: 1; transition: opacity .15s ease; }
+@media (hover: hover) and (pointer: fine) {
+  .ly .dn-pc:hover .dn-qa, .ly .dn-pc:has(:focus-visible) .dn-qa { visibility: visible; opacity: 1; transition: opacity .15s ease; }
+}
+/* on a touch screen the strip has its ✕ in the top corner: the words beside it keep clear of it */
+.ly .dn-pc .dn-qa.open .qa-h { min-height: 30px; margin-top: -4px; padding-inline-end: 38px; display: flex; align-items: center; }
+.ly .dn-pc .dn-qa.open .qa-add, .ly .dn-pc .dn-qa.open .qa-bag { width: auto; margin-inline-end: 38px; }
+.ly .dn-pc .dn-qa .qa-h { margin-bottom: 8px; font: 600 11.5px/1.3 var(--ly-sans); color: var(--ly-muted); }
+.ly .dn-pc .dn-qa .qa-sz { display: flex; flex-wrap: wrap; gap: 6px; }
+.ly .dn-pc .dn-qa .qa-c { display: inline-grid; place-items: center; min-width: 40px; height: 34px; padding: 0 9px; border-radius: var(--ly-r-in); background: var(--ly-bg); color: var(--ly-ink); box-shadow: inset 0 0 0 1px var(--ly-line-2); font: 600 12.5px/1 var(--ly-sans); white-space: nowrap; transition: background-color .15s, color .15s; }
+.ly .dn-pc .dn-qa .qa-c:hover:not(:disabled) { background: var(--ly-act); color: var(--ly-act-on); box-shadow: none; }
+.ly .dn-pc .dn-qa .qa-c:focus-visible { outline: 0; box-shadow: inset 0 0 0 2px var(--ly-ring), inset 0 0 0 4px var(--ly-ring-in); }
+.ly .dn-pc .dn-qa .qa-c.out { color: var(--ly-muted); text-decoration: line-through; opacity: .55; cursor: not-allowed; }
+.ly .dn-pc .dn-qa .qa-add { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 40px; padding: 0 14px; border-radius: 999px; background: var(--ly-act); color: var(--ly-act-on); font: 700 12px/1.1 var(--ly-sans); letter-spacing: .08em; text-transform: uppercase; transition: background-color .15s; }
+.ly .dn-pc .dn-qa .qa-add:hover:not(:disabled) { background: var(--ly-act-deep); }
+.ly .dn-pc .dn-qa .qa-add:disabled { background: var(--ly-band); color: var(--ly-muted); cursor: not-allowed; }
+.ly .dn-pc .dn-qa .qa-add:focus-visible { outline: 0; box-shadow: inset 0 0 0 2px var(--ly-ring), inset 0 0 0 4px var(--ly-ring-in); }
+.ly .dn-pc .dn-qa .qa-bag { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ly .dn-pc .dn-qa .qa-w { min-width: 0; font: 600 12.5px/1.3 var(--ly-sans); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ly .dn-pc .dn-qa .qb { flex: none; min-height: 36px; border-radius: 999px; }
+.ly .dn-pc .dn-qa .qb button { width: 34px; height: 34px; border-radius: 50%; }
+.ly .dn-pc .dn-qa .qb .qn { min-width: 18px; text-align: center; font-weight: 700; font-size: 13.5px; }
+.ly .dn-pc .dn-qa .qb button:focus-visible { outline: 0; box-shadow: inset 0 0 0 2px var(--ly-ring); }
+.ly .dn-pc .dn-qa .qa-x { position: absolute; top: 6px; inset-inline-end: 6px; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; background: var(--ly-band); color: var(--ly-ink); }
+.ly .dn-pc .dn-qa .qa-x .i { width: 15px; height: 15px; }
+.ly .dn-pc .dn-qa .qa-x:hover { color: var(--ly-act-text); }
+.ly .dn-pc .dn-qa .qa-x:focus-visible { outline: 0; box-shadow: inset 0 0 0 2px var(--ly-ring); }
+.ly .dn-pc .pc-plus { position: absolute; bottom: 10px; inset-inline-end: 10px; z-index: 1; width: 38px; height: 38px; display: none; place-items: center; border-radius: 50%; background: var(--ly-paper); color: var(--ly-ink); }
+.ly .dn-pc .pc-plus .i { width: 18px; height: 18px; }
+.ly .dn-pc .pc-plus:focus-visible { outline: 0; box-shadow: inset 0 0 0 2px var(--ly-ring), inset 0 0 0 4px var(--ly-ring-in); }
+@media (hover: none), (pointer: coarse) {
+  .ly .dn-pc .pc-plus { display: grid; }
+  .ly .dn-pc .dn-qa.held ~ .pc-plus { display: none; }
+}
+
+/* Under the photo: New / Sale, the name, the prices, the colour dots */
+.ly .dn-pc .pc-tx { align-items: flex-start; text-align: start; padding: 12px 2px 0; }
+.ly .dn-pc .pc-flag { margin-bottom: 3px; font: 700 12px/1.3 var(--ly-sans); letter-spacing: .02em; color: var(--ly-act-text); }
+.ly .dn-pc .pc-t { min-height: 0; font: 500 14.5px/1.35 var(--ly-sans); letter-spacing: 0; -webkit-line-clamp: 2; }
+.ly .dn-pc .pc-t a { color: var(--ly-ink); }
+.ly .dn-pc .pc-t a:hover { color: var(--ly-act-text); }
+.ly .dn-pc .pc-t a:focus-visible { outline: 0; box-shadow: inset 0 0 0 2px var(--ly-ring); border-radius: var(--ly-r-in); }
+.ly .dn-pc .pc-ly { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; margin-top: 5px; font-size: 14.5px; line-height: 1.3; }
+.ly .dn-pc .pc-ly .was { margin: 0; color: var(--ly-muted); font-size: 13.5px; }
+.ly .dn-pc .pc-ly .now { font-weight: 700; color: var(--ly-ink); }
+.ly .dn-pc .pc-ly .now.deal { color: var(--ly-act-text); }
+.ly .dn-pc .pc-dots { display: flex; align-items: center; gap: 5px; margin-top: 8px; min-height: 14px; }
+.ly .dn-pc .pc-dot { width: 13px; height: 13px; flex: none; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--ly-line-2); }
+.ly .dn-pc .pc-more { margin-inline-start: 2px; font-size: 11.5px; font-weight: 600; color: var(--ly-muted); }
+
+/* A narrow card (phones, six-up rails): smaller corner pieces, the strip's chips tighter */
+@container pc (max-width: 200px) {
+  .ly .dn-pc .pc-save { top: 8px; inset-inline-start: 8px; max-width: calc(100% - 56px); padding: 4px 8px; font-size: 10.5px; }
+  .ly .dn-pc .pc-fav, .ly .dn-pc .pc-plus { width: 34px; height: 34px; }
+  .ly .dn-pc .pc-fav { top: 6px; inset-inline-end: 6px; }
+  .ly .dn-pc .pc-plus { bottom: 8px; inset-inline-end: 8px; }
+  .ly .dn-pc .dn-qa { inset-inline: 6px; bottom: 6px; padding: 8px; }
+  .ly .dn-pc .dn-qa .qa-c { min-width: 34px; height: 30px; padding: 0 7px; font-size: 12px; }
+  .ly .dn-pc .dn-qa .qa-sz { gap: 5px; }
+  .ly .dn-pc .pc-t { font-size: 13.5px; }
+  .ly .dn-pc .pc-ly { font-size: 13.5px; }
+}
+
+/* ━━━━━━━━━━━━ Under the grid: About, the other categories ━━━━━━━━━━━━ */
+.ly .dn-ls-about { margin-top: 72px; padding-top: 40px; border-top: 1px solid var(--ly-line); }
+.ly .dn-ls-about-h { font-family: var(--ly-serif); font-weight: var(--ly-h-weight); font-size: 22px; line-height: 1.25; color: var(--ly-ink); }
+.ly .dn-ls-about-tx { margin-top: 14px; color: var(--ly-muted); font-size: 14.5px; line-height: 1.7; }
+.ly .dn-ls-about-tx p + p { margin-top: 10px; }
+@media (min-width: 1000px) {
+  .ly .dn-ls-about-tx { columns: 2; column-gap: 56px; }
+  .ly .dn-ls-about-tx p { break-inside: avoid; }
+}
+.ly .dn-ls-more { margin-top: 36px; }
+.ly .dn-ls-about + .dn-ls-more { margin-top: 28px; }
+.ly .dn-ls-more:not(.dn-ls-about + .dn-ls-more) { padding-top: 40px; margin-top: 72px; border-top: 1px solid var(--ly-line); }
+.ly .dn-ls-more-h { margin-bottom: 14px; font: 700 12px/1.3 var(--ly-sans); letter-spacing: .14em; text-transform: uppercase; color: var(--ly-muted); }
+.ly .dn-ls-more ul { display: flex; flex-wrap: wrap; gap: 10px; }
+.ly .dn-ls-cap { display: inline-flex; align-items: center; min-height: 42px; padding: 8px 20px; border-radius: 999px; background: var(--ly-band); color: var(--ly-ink); box-shadow: inset 0 0 0 1px var(--ly-line); font: 500 14px/1.2 var(--ly-sans); white-space: nowrap; transition: color .15s; }
+.ly .dn-ls-cap:hover { color: var(--ly-act-text); }
+.ly .dn-ls-cap:focus-visible { outline: 0; box-shadow: inset 0 0 0 2px var(--ly-ring); }
+
+/* ━━━━━━━━━━━━ Phones ━━━━━━━━━━━━ */
+@media (max-width: 760px) {
+  .ly .dn-ls-tin { padding-block: 16px 10px; }
+  .ly .dn-ls-h { font-size: 24px; margin-top: 8px; }
+  .ly .dn-ls-sec { padding-bottom: 56px; }
+  .ly .dn-ls-about { margin-top: 52px; padding-top: 28px; }
+  .ly .dn-ls-about-h { font-size: 19px; }
+  .ly .dn-ls-more ul { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: calc(var(--ly-gut) * -1); padding-inline: var(--ly-gut); }
+  .ly .dn-ls-more ul::-webkit-scrollbar { display: none; }
+  .ly .dn-ls-more li { flex: none; }
+}

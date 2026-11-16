@@ -1,0 +1,10 @@
+{
+  "deploy_server": "https://layouts.selldone.com",
+  "deploy_path": "",
+  "package": "denimo-fashion",
+  "name": "Denimo Casual Fashion",
+  "version": "1.0.2",
+  "storefront": true,
+  "backoffice": false,
+  "description": "A casual, denim-first fashion Layout laid out like a big American mall brand: a rotating promo bar, a centred uppercase wordmark with a search pill, a department nav with click-open mega menus by audience, a full-bleed campaign hero with two capsules, an offer band, portrait split banners, category and audience tiles, one-line product rails, a category page with a category tree, size and colour filters and quick-add cards, and a product page with a photo mosaic, colour circles, size chips, size details and At a glance. One colour family (Denim by default), Archivo expanded over DM Sans, capsule buttons and 14 px photos."
+}
