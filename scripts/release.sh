@@ -54,7 +54,13 @@ node --use-system-ca scripts/prod-check.mjs dist/app || { echo "PROD-CHECK FAILE
 # 6. Package (always --force, or an old dist.zip is kept) and prove the ZIP is this build.
 : "${SELLDONE_CLI_SRC:?set SELLDONE_CLI_SRC to a clone of github.com/selldone/cli}"
 PACKAGER="$SELLDONE_CLI_SRC/.agents/skills/package-selldone-storefront-layout/scripts/package_layout.py"
-python "$PACKAGER" dist dist.zip --manifest manifest.json --force
+# Without a working Python (Windows' "python" alias only opens the Store), the Node port of the same packager
+# and validator (scripts/package-layout.mjs, jszip) builds the same archive.
+if python --version >/dev/null 2>&1; then
+  python "$PACKAGER" dist dist.zip --manifest manifest.json --force
+else
+  node scripts/package-layout.mjs dist dist.zip --manifest manifest.json --force
+fi
 unzip -p dist.zip app/shop.js | cmp - dist/app/shop.js && echo "zip matches dist"
 if [ -n "${NO_UPLOAD:-}" ]; then echo "NO_UPLOAD: stopping before the upload"; exit 0; fi
 

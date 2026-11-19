@@ -90,7 +90,7 @@ On the live domain (https://denimo.selldone.shop), 16 November 2026:
 | text-col, box | 7 | 0 | 0 |
 | i18n (Arabic) | 6 | 2 (the shop's spec titles) | 0 |
 
-Before each upload, `scripts/release.sh` step 5b loaded the production bundle through the live shop's own HTML (PROD-CHECK OK), and the server's copy matched the build (js and css). The guest walk (a size, then Add to bag) reaches the sign-in sheet, because Fashioni's checkout asks for an account; no order is placed.
+Before each upload, `scripts/release.sh` step 5b loaded the production bundle through the live shop's own HTML (PROD-CHECK OK), and the server's copy matched the build (js and css). The guest checkout walk (`scripts/checkout-walk.mjs`, 1.0.4, desktop 1440 and phone 390) runs as a guest from a size and Add to bag through the bag drawer, contact, the address sheet (map, pin, details) and every delivery method the shop offers, up to Selldone's payment window, and closes it there: with a local address the shop's courier, a delivery window, and "Place order · pay on delivery" open the window with the same total (cash on delivery). A product whose package is over the courier's size limit gets the "No delivery method reaches this bag yet" card instead, with no Place order. No order is placed, and the bag is emptied at the end.
 <!-- TESTS:END -->
 
 ## Photos

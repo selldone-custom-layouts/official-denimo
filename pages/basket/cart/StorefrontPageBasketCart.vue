@@ -236,7 +236,7 @@
               <div class="co-b">
                 <div class="co-hr">
                   <h2 id="co2" class="co-h">{{ t("ly.co.deliveryH", "Delivery") }}</h2>
-                  <button :aria-expanded="delivery_sheet ? 'true' : 'false'" aria-controls="dlvm" class="qlink" type="button" @click="openLayer('dlvm', $event.currentTarget)">
+                  <button v-if="!nx_no_way" :aria-expanded="delivery_sheet ? 'true' : 'false'" aria-controls="dlvm" class="qlink" type="button" @click="openLayer('dlvm', $event.currentTarget)">
                     {{ t("ly.co.compareWays", "Compare the options") }}<ly-icon name="arrow" />
                   </button>
                 </div>
@@ -263,6 +263,15 @@
                   :start-package-index="bill?.connect_shipping_options?.length + bill?.vendor_shipping_options?.length"
                   @set-basket-config="setBasketConfig"
                 ></s-order-shipping-stores-options>
+                <!-- No way reaches this bag (the bill offers none that can be chosen): say so, keep the bag -->
+                <div v-if="nx_no_way" class="nogw-b ly-nogw ly-noway" data-noway role="note">
+                  <span class="em-ic sm"><ly-icon name="info" /></span>
+                  <div>
+                    <b>{{ t("ly.co.noWayT", "No delivery method reaches this bag yet") }}</b>
+                    <p>{{ t("ly.co.noWayP", "The shop has no way to deliver these items or a place to pick them up. Your bag is kept.") }}</p>
+                    <router-link :to="dmContactTo" class="qlink">{{ t("ly.co.contactShop", "Contact the shop") }}</router-link>
+                  </div>
+                </div>
               </div>
             </section>
 
@@ -456,8 +465,9 @@
                   <router-link :to="dmContactTo" class="qlink">{{ t("ly.co.contactShop", "Contact the shop") }}</router-link>
                 </div>
               </div>
+              <p v-else-if="nx_no_way" class="rc-note" data-noway><ly-icon name="info" />{{ t("ly.co.noWayNote", "The order cannot be placed until the shop offers a delivery method for this bag.") }}</p>
               <p v-else-if="pay_blocker && !nx_missing.length" class="rc-note"><ly-icon name="info" />{{ pay_blocker }}</p>
-              <button v-if="!nx_no_gateway" :disabled="busy_submit" class="btn block place" type="button" @click="nx_place">
+              <button v-if="!nx_no_gateway && !nx_no_way" :disabled="busy_submit" class="btn block place" type="button" @click="nx_place">
                 <span v-if="busy_save || busy_bill || busy_submit" aria-hidden="true" class="spin"></span>{{ pr_place_label }}
               </button>
               <p class="rc-note"><ly-icon name="lock" />{{ nx_cod_only ? t("ly.co.nothingOnline", "Nothing is charged online.") : t("ly.co.payNext", "You choose how to pay in the next step.") }}</p>

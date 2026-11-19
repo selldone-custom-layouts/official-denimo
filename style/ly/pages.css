@@ -903,6 +903,7 @@ select.inp:is(.ly,.ly *) { -webkit-appearance: none; appearance: none; backgroun
 .nogw-b:is(.ly,.ly *) b { font-weight: 600; display: block; }
 .nogw-b:is(.ly,.ly *) p { color: var(--ly-muted); margin: 2px 0 2px; line-height: 1.5; }
 .nogw-b:is(.ly,.ly *) .qlink { min-height: 32px; padding: 4px 0; }
+.ly-noway:is(.ly,.ly *) { margin-top: 12px; }
 
 /* ═════════ order ═════════ */
 .od:is(.ly,.ly *) { display: grid; gap: 20px; }

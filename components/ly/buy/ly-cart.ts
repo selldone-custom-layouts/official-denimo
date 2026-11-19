@@ -253,6 +253,16 @@ export default {
     nx_no_gateway(this: any): boolean {
       return !!this.payment_ways && !this.payment_ways.length && this.nx_rc.total > 0 && !this.is_service_need_pricing && !this.isSubscription;
     },
+    /* The bill offers no way to receive this bag: no delivery way, no pickup point, no delivery service. The server
+       leaves a way out when the bag is over its size or weight limits, and a pickup way with no pickup point cannot be
+       chosen (Fashioni, 16 Nov 2026: parcels of 110 cm over a 100 cm courier, a pickup with no point). The checkout
+       then says so instead of showing an empty Delivery card and a Place order that cannot work. */
+    nx_no_way(this: any): boolean {
+      if (!this.has_delivery || this.isService || !this.bill) return false;
+      if (this.bill.connect_shipping_options?.length) return false;
+      const ways = [...(this.bill.store_shipping_options || []), ...(this.bill.vendor_shipping_options || [])].flatMap((o: any) => o.transportations || []);
+      return !ways.some((w: any) => w.type !== ShopTransportations.Pickup.code || w.pickups?.length);
+    },
     nx_place_label(this: any): string {
       const total = this.nx_money(this.nx_rc.total);
       if (this.is_service_need_pricing) return this.$t("basket_page.pre_confirm_service");
@@ -277,6 +287,7 @@ export default {
        (the way's SOD switch); a way with no fee at all (no fixed fee, no rate
        by distance or weight) is free either way, as its card says. */
     nx_delivery_value(this: any): string {
+      if (this.nx_no_way) return t("ly.co.noWayValue", "Not available");
       const d = this.nx_rc.delivery;
       if (d > 0) return this.nx_money(d);
       if (d === 0 || this.nx_way_is_free) return t("bakini.n.co.free", "Free");

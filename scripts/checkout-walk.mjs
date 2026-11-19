@@ -19,7 +19,16 @@
  * Prints every step, then "WALK OK" or "WALK PROBLEMS n".
  */
 import { createRequire as __cr } from "node:module";
-const { shopUrl: __shopUrl } = __cr(import.meta.url)("./lib/skin.cjs");
+const __SK = __cr(import.meta.url)("./lib/skin.cjs");
+const __shopUrl = __SK.shopUrl;
+/* the skin's own test product, theme key and brand palette */
+const __SKIN = __SK.readSkin().skin;
+const PRODUCT = process.env.PRODUCT || (__SKIN.checks && __SKIN.checks.product);
+const THEME_KEY = __SK.storageKey("theme");
+const BRAND = (__SKIN.palettes && __SKIN.palettes.brand) || "";
+/* GEO="lat,lng": the browser's location, used by the address sheet's "Use my location" (a courier with a range
+   offers itself only near its warehouse) */
+const GEO = process.env.GEO ? process.env.GEO.split(",").map(Number) : null;
 import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -51,13 +60,21 @@ const slug = (s) =>
 for (const W of WIDTHS) {
   const H = W < 768 ? 844 : 900;
   console.log(`\n=== ${W}×${H} ${MODE}`);
-  const ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: 1, isMobile: W < 768, hasTouch: W < 768 });
-  await ctx.addInitScript((mode) => {
+  const ctx = await browser.newContext({
+    viewport: { width: W, height: H },
+    deviceScaleFactor: 1,
+    isMobile: W < 768,
+    hasTouch: W < 768,
+    ...(GEO ? { geolocation: { latitude: GEO[0], longitude: GEO[1] }, permissions: ["geolocation"] } : {}),
+  });
+  await ctx.addInitScript((a) => {
     try {
-      localStorage.setItem("ly-theme", JSON.stringify({ palette: "tan", mode }));
+      localStorage.setItem(a.key, JSON.stringify({ palette: a.palette, mode: a.mode }));
     } catch {}
-  }, MODE);
+  }, { key: THEME_KEY, palette: BRAND, mode: MODE });
   const page = await ctx.newPage();
+  /* no step may wait forever: fail it and say where */
+  page.setDefaultTimeout(60000);
   const errors = [];
   const blocked = [];
   page.on("pageerror", (e) => errors.push(String(e).slice(0, 240)));
@@ -77,19 +94,82 @@ for (const W of WIDTHS) {
   const push = (to) => page.evaluate((p) => window.$global_router.push(p).catch(() => {}), to);
   const visible = (sel) => page.locator(sel).filter({ visible: true }).first();
   const ways = () => page.locator("#co-delivery .mcs label.mc");
+  /* The address sheet: open it from the address card, place the pin (with GEO, "Use my location" first, so the pin
+     lands where the courier reaches), fill fake details, Save. */
+  const addressStep = async (tag) => {
+    const addrBtn = page.locator("#co-address .addr-add, #co-address .addr-card .qlink").first();
+    await addrBtn.scrollIntoViewIfNeeded();
+    await addrBtn.click();
+    await page.waitForSelector(".k-addr__grid", { timeout: 20000 });
+    await sleep(4000);
+    const hasMap = await page.evaluate(() => !!document.querySelector(".k-addr__map"));
+    console.log(`  address sheet open${tag ? " (" + tag + ")" : ""}, map ${hasMap ? "on" : "off"} (the shop's option)`);
+    await shot(`05${tag ? "-" + tag : ""}-address-map-${hasMap ? "on" : "off"}`);
+    if (hasMap) {
+      if (GEO) {
+        await page.locator(".k-addr__locate").click().catch(() => {});
+        await sleep(5000);
+      }
+      await page.locator(".k-addr__pin svg").click().catch(() => {});
+      await sleep(5000);
+      const found = await page.evaluate(() => document.querySelector(".k-addr__found b")?.textContent?.trim());
+      console.log(`  pin placed${GEO ? " at " + GEO.join(", ") : ""}; address under it: ${found}`);
+      if (await page.evaluate(() => !!document.querySelector(".k-addr__grid.-step-map"))) {
+        await page.locator(".k-sheet__foot .k-sheet__go").click();
+        await sleep(1500);
+      }
+    }
+    const fill = async (sel, v, force = false) => {
+      const el = page.locator(sel).first();
+      if (!(await el.count())) return;
+      if (force || !(await el.inputValue())) await el.fill(v);
+    };
+    await fill('.k-addr__field input[autocomplete="street-address"]', "12 Walk Street");
+    await fill('.k-addr__field input[placeholder="No."]', "12");
+    await fill('.k-addr__field input[autocomplete="name"]', "Test Walk", true);
+    await fill('.k-addr__field input[autocomplete="tel"]', "+1 415 555 0199", true);
+    await fill('.k-addr__field input[autocomplete="address-level2"]', GEO ? "Tehran" : "San Francisco");
+    await fill('.k-addr__field input[autocomplete="postal-code"]', GEO ? "1414" : "94105");
+    await fill(".k-addr__field textarea", "Ring twice (test walk)", true);
+    await sleep(800);
+    await shot(`06${tag ? "-" + tag : ""}-address-details`);
+    await page.locator(".k-sheet__foot .k-sheet__go").click();
+    await sleep(5000);
+    const left = await page.evaluate(() => !!document.querySelector(".k-addr__grid"));
+    const missing = await page.evaluate(() => document.querySelector(".k-addr__missing")?.textContent?.trim());
+    if (left) bad(W, `the address sheet stayed open after Save${missing ? ": " + missing : ""}`);
+    const set = await page.evaluate(() => (document.querySelector("#co-address .addr-card")?.textContent || "(no address card)").replace(/\s+/g, " ").trim());
+    console.log(`  address saved: ${set}`);
+    await shot(`07${tag ? "-" + tag : ""}-address-set`, true);
+  };
 
   try {
-    // ── home and one piece in the bag
+    // ── home, then one piece in the bag from the skin's test product (Denimo's home has no "Today's
+    //    selection" row): a size first where the product has sizes, then the page's own "Add to bag"
     await page.goto(BASE + "/", { waitUntil: "domcontentloaded", timeout: 120000 });
     await page.waitForSelector(".ly .ftr", { timeout: 90000 });
-    await page.waitForSelector(".ly .srow .add", { timeout: 60000 });
     await sleep(2500);
-    const addBtn = page.locator(".ly .srow .add").first();
+    if (await page.locator("#lg-m").filter({ visible: true }).count()) bad(W, "the home opens the sign-in sheet");
+    await push("/product/" + PRODUCT);
+    await page.waitForSelector(".ly h1, .dn-pd-add", { timeout: 60000 });
+    await sleep(4000);
+    const piece = await page.evaluate(() => document.querySelector(".ly h1")?.textContent?.trim());
+    const size = await page.evaluate(() => {
+      const chip = [...document.querySelectorAll(".ly .dn-pd button, .ly button")].find((b) => !b.disabled && b.getBoundingClientRect().width > 0 && /^(XXS|XS|S|M|L|XL|XXL|\d{1,2})$/.test(b.textContent.trim()));
+      if (chip) chip.click();
+      return chip ? chip.textContent.trim() : "";
+    });
+    await sleep(1000);
+    const addBtn = page.locator(".dn-pd-add button, .ly button:has-text('Add to bag')").filter({ visible: true }).first();
     await addBtn.scrollIntoViewIfNeeded();
-    const piece = await page.evaluate(() => document.querySelector(".ly .srow")?.querySelector(".s-t")?.textContent?.trim());
     await addBtn.click();
-    console.log(`  added one piece: ${piece || "(first row)"}`);
     await sleep(3500);
+    if (await page.locator("#lg-m").filter({ visible: true }).count()) {
+      bad(W, "Add to bag opened the sign-in sheet (guest checkout off?)");
+      throw new Error("sign-in sheet after Add to bag");
+    }
+    console.log(`  added one piece: ${piece || "(product " + PRODUCT + ")"}${size ? ", size " + size : ""}`);
+    await shot("00-added");
 
     // ── the bag drawer
     await visible(".bag-btn").click();
@@ -120,13 +200,31 @@ for (const W of WIDTHS) {
     }
     await sleep(2500);
 
+    // ── with GEO: the address first, so the bill can offer ways limited by distance (a courier's range)
+    if (GEO) await addressStep("early");
+
     // ── every delivery way
     const list = await page.evaluate(() =>
       [...document.querySelectorAll("#co-delivery .mcs label.mc")].map((b) => [b.querySelector(".mc-t"), b.querySelector(".mc-f"), b.querySelector(".mc-n")].map((x) => x?.textContent?.trim() || "").join(" | ")),
     );
     console.log(`  delivery ways (${list.length}):`);
     list.forEach((w, i) => console.log(`    ${i + 1}. ${w}`));
-    if (!list.length) bad(W, "the Delivery card shows no way");
+    /* No way at all: the shop's data (the bill offers none that can be chosen). The checkout must say so (1.0.4's
+       "No delivery method reaches this bag yet" card, no Place order); then it is a shop finding, not the Layout's. */
+    let noWay = false;
+    if (!list.length) {
+      const st = await page.evaluate(() => ({
+        card: document.querySelector("#co-delivery [data-noway]")?.textContent?.replace(/\s+/g, " ").trim() || "",
+        note: document.querySelector("#co-pay [data-noway], .rc-note[data-noway]")?.textContent?.replace(/\s+/g, " ").trim() || "",
+        place: !!document.querySelector("#co-pay button.place"),
+      }));
+      if (st.card && !st.place) {
+        noWay = true;
+        console.log(`  SHOP-DATA: the shop offers no delivery way for this bag; the checkout says: "${st.card}" / "${st.note}" (no Place order)`);
+        await page.locator("#co-delivery").screenshot({ path: path.join(OUT, `walk-${W}-03-no-way.png`) });
+        await shot("03-no-way-receipt");
+      } else bad(W, `the Delivery card shows no way and ${st.card ? "still offers Place order" : "says nothing about it"}`);
+    }
     const wayInfo = [];
     for (let i = 0; i < list.length; i++) {
       const card = ways().nth(i);
@@ -178,55 +276,19 @@ for (const W of WIDTHS) {
     }
 
     // ── a way that needs an address, then the address sheet
+    //    (with no way at all the address sheet is still walked: the card is there, and the sheet is the Layout's)
     const home = wayInfo.find((w) => !w.pickup);
-    if (home) {
-      await ways().nth(home.i).click();
-      await sleep(3000);
-      const firstChip = page.locator("#co-delivery .wins .wchip:not([disabled])").first();
-      if (await firstChip.count()) {
-        await firstChip.click();
-        await sleep(2000);
-      }
-      const addrBtn = page.locator("#co-address .addr-add, #co-address .addr-card .qlink").first();
-      await addrBtn.scrollIntoViewIfNeeded();
-      await addrBtn.click();
-      await page.waitForSelector(".k-addr__grid", { timeout: 20000 });
-      await sleep(4000);
-      const hasMap = await page.evaluate(() => !!document.querySelector(".k-addr__map"));
-      console.log(`  address sheet open, map ${hasMap ? "on" : "off"} (the shop's option)`);
-      await shot(`05-address-map-${hasMap ? "on" : "off"}`);
-      if (hasMap) {
-        await page.locator(".k-addr__pin svg").click().catch(() => {});
-        await sleep(5000);
-        const found = await page.evaluate(() => document.querySelector(".k-addr__found b")?.textContent?.trim());
-        console.log(`  pin placed; address under it: ${found}`);
-        if (await page.evaluate(() => !!document.querySelector(".k-addr__grid.-step-map"))) {
-          await page.locator(".k-sheet__foot .k-sheet__go").click();
-          await sleep(1500);
+    if (home || noWay) {
+      if (home) {
+        await ways().nth(home.i).click();
+        await sleep(3000);
+        const firstChip = page.locator("#co-delivery .wins .wchip:not([disabled])").first();
+        if (await firstChip.count()) {
+          await firstChip.click();
+          await sleep(2000);
         }
       }
-      const fill = async (sel, v, force = false) => {
-        const el = page.locator(sel).first();
-        if (!(await el.count())) return;
-        if (force || !(await el.inputValue())) await el.fill(v);
-      };
-      await fill('.k-addr__field input[autocomplete="street-address"]', "12 Walk Street");
-      await fill('.k-addr__field input[placeholder="No."]', "12");
-      await fill('.k-addr__field input[autocomplete="name"]', "Test Walk", true);
-      await fill('.k-addr__field input[autocomplete="tel"]', "+1 415 555 0199", true);
-      await fill('.k-addr__field input[autocomplete="address-level2"]', "San Francisco");
-      await fill('.k-addr__field input[autocomplete="postal-code"]', "94105");
-      await fill(".k-addr__field textarea", "Ring twice (test walk)", true);
-      await sleep(800);
-      await shot("06-address-details");
-      await page.locator(".k-sheet__foot .k-sheet__go").click();
-      await sleep(5000);
-      const left = await page.evaluate(() => !!document.querySelector(".k-addr__grid"));
-      const missing = await page.evaluate(() => document.querySelector(".k-addr__missing")?.textContent?.trim());
-      if (left) bad(W, `the address sheet stayed open after Save${missing ? ": " + missing : ""}`);
-      const set = await page.evaluate(() => (document.querySelector("#co-address .addr-card")?.textContent || "(no address card)").replace(/\s+/g, " ").trim());
-      console.log(`  address saved: ${set}`);
-      await shot("07-address-set", true);
+      await addressStep("");
     } else bad(W, "no way that needs an address");
 
     // ── each way: Place order → the payment window → its ✕
@@ -266,8 +328,9 @@ for (const W of WIDTHS) {
       console.log(`  way "${w.name}": "${label}" → payment window [${pay.box}]${pay.over ? " SIDE-SCROLL" : ""}: ${pay.text}`);
       if (pay.box[2] > W + 1 || pay.box[0] < -1) bad(W, `payment window is off the screen: ${pay.box}`);
       /* the button's total and the payment window's total are the same bill (a stale bill shows a different one) */
-      const btnTotal = (label.match(/$[d.,]+/) || [])[0];
-      const payTotal = (pay.text.match(/TOTAL PAYMENTs*($[d.,]+)/i) || [])[1];
+      /* (the base's copy lost its backslashes in a heredoc: /$[d.,]+/ never matched, so this check never ran) */
+      const btnTotal = (label.match(/\$[\d.,]+/) || [])[0];
+      const payTotal = (pay.text.match(/TOTAL PAYMENT\s*(\$[\d.,]+)/i) || [])[1];
       if (btnTotal && payTotal && btnTotal !== payTotal) bad(W, `way "${w.name}": the button says ${btnTotal}, the payment window ${payTotal}`);
       await shot(`10-payment-${slug(w.name)}`);
       const x = page.locator(".s--storefront-master-payment-dialog .v-toolbar .v-btn").last();
