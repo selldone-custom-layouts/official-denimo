@@ -164,6 +164,10 @@
 .ly .dn-tile-ph { display: block; aspect-ratio: 3 / 4; overflow: hidden; border-radius: var(--ly-r-pn); background: var(--ly-plate); }
 .ly .dn-tile-ph img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity .2s; }
 .ly .dn-tile-ph.cut img { object-fit: contain; padding: 14%; }
+/* a tile's product photo without a cut-out (a JPEG): multiplied onto the plate, in dark mode on the family's lightest
+   tint (see style/ly/look.css) */
+.ly .dn-tile-ph.cut img:is([src*=".jpg" i], [src*=".jpeg" i]) { mix-blend-mode: multiply; }
+html.ly-dark .ly .dn-tile-ph.cut:has(img:is([src*=".jpg" i], [src*=".jpeg" i])) { background: var(--ly-dark-ink); }
 .ly .dn-tile b { font: 700 15px/1.3 var(--ly-sans); text-align: center; padding-inline: 4px; }
 .ly .dn-tile:hover { color: var(--ly-act-text); }
 .ly .dn-tile:hover .dn-tile-ph img { opacity: .92; }

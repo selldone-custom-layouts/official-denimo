@@ -364,3 +364,18 @@ html.ly-dark .ph-img:is(.ly,.ly *), html.ly-dark .cc-ph:is(.ly,.ly *) img, html.
 @media (min-width: 1921px) {
   .pband:is(.ly,.ly *) .pb-ph { border-radius: var(--ly-r-pn); }
 }
+
+/* A product photo without a cut-out on a plate. The plates are drawn for cut-outs (a PNG or WebP with a transparent
+   ground); a JPEG has no transparency, so its white ground sat as a box on the tinted plate (Avenio, 21 Nov 2026).
+   It is multiplied onto the plate, so its white takes the plate's colour. In dark mode the plate under it turns the
+   family's lightest tint first (multiplied on the night plate the photo would go dark). Product cards take that light
+   plate in dark mode whatever their photo, the way Denimo's cards do, so a grid that mixes both kinds stays even.
+   A cut-out is left as it is. A white-ground PNG cannot be told from a cut-out, and a grey studio ground stays a
+   little darker than the plate. */
+html:not(.ly-dark) :is(.pc-plate, .qv-pl, .pd-main, .pd-t, .opt-ph, .bt-pl, .bb-pl, .apc-pl, .clg-i, .mini-th, .cc-pl, .cs-pl, .dt-pl, .ch-pl, .rc-th, .cr-pl, .s-th, .hc-ph, .dd-th, .pick .th, .srch-list .th, .pn-list .th, .dw-list .th, .gt .pl, .collage, .ly-cuts):is(.ly,.ly *) img:is([src*=".jpg" i], [src*=".jpeg" i]),
+html.ly-dark :is(.pc-plate, .qv-pl, .pd-main, .pd-t, .opt-ph, .bt-pl, .bb-pl, .apc-pl, .clg-i, .mini-th, .cc-pl, .cs-pl, .dt-pl, .ch-pl, .rc-th, .cr-pl, .s-th, .hc-ph, .dd-th, .pick .th, .srch-list .th, .pn-list .th, .dw-list .th):is(.ly,.ly *) img:is([src*=".jpg" i], [src*=".jpeg" i]) { mix-blend-mode: multiply; }
+html.ly-dark :is(.qv-pl, .pd-main, .pd-t, .opt-ph, .bt-pl, .bb-pl, .apc-pl, .clg-i, .mini-th, .cc-pl, .cs-pl, .dt-pl, .ch-pl, .rc-th, .cr-pl, .s-th, .hc-ph, .dd-th, .pick .th, .srch-list .th, .pn-list .th, .dw-list .th):is(.ly,.ly *):has(img:is([src*=".jpg" i], [src*=".jpeg" i])),
+html.ly-dark .pc:not(.ly-skel):is(.ly,.ly *) > .pc-plate { background: var(--ly-dark-ink); }
+/* on that light plate the saving roundel keeps its light-mode look (the family-dark circle), or it would melt into it */
+html.ly-dark .pc:not(.ly-skel):is(.ly,.ly *) > .pc-plate .pc-off,
+html.ly-dark :is(.qv-pl, .pd-main):is(.ly,.ly *):has(img:is([src*=".jpg" i], [src*=".jpeg" i])) .pc-off { background: var(--ly-dark); color: var(--ly-dark-ink); }

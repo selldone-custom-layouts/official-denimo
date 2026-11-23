@@ -31,6 +31,10 @@
 .ly .dn-pd-ph img { width: 100%; height: 100%; object-fit: contain; }
 /* product shots on white melt into the plate (light only: a dark plate would darken the photo) */
 html:not(.ly-dark) .ly .dn-pd-ph img, html:not(.ly-dark) .ly .dn-pd-zoom-i, html:not(.ly-dark) .ly .dn-pd-look-ph img { mix-blend-mode: multiply; }
+/* in dark mode a photo without a cut-out (a JPEG) gets the family's lightest tint under it, as on the cards, so its
+   white ground never sits as a box on the night plate (see style/ly/look.css) */
+html.ly-dark .ly :is(.dn-pd-ph, .dn-pd-look-ph):has(img:is([src*=".jpg" i], [src*=".jpeg" i])) { background: var(--ly-dark-ink); }
+html.ly-dark .ly :is(.dn-pd-ph, .dn-pd-look-ph) img:is([src*=".jpg" i], [src*=".jpeg" i]) { mix-blend-mode: multiply; }
 .ly .dn-pd-sv { position: absolute; top: 12px; inset-inline-end: 12px; z-index: 2; display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; background: var(--ly-paper); color: var(--ly-ink); }
 .ly .dn-pd-sv:hover { color: var(--ly-act-text); }
 .ly .dn-pd-sv .i { width: 20px; height: 20px; }

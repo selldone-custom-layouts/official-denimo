@@ -363,7 +363,12 @@ export default {
       }
       if (this.kind === "search") return this.matches(this.search);
       if (this.kind === "deals") return all.filter((p) => this.pv(p).save > 0);
+      /* ?brand= (a Brands menu, the home's brand tiles): only that brand */
+      if (this.brandQ) return all.filter((p) => String(p.brand || "").trim() === this.brandQ);
       return all;
+    },
+    brandQ() {
+      return this.kind === "all" ? String(this.$route?.query?.brand || "").trim() : "";
     },
     /* …and with the audience (an audience category also keeps its own products, if it has any). */
     base() {
@@ -464,6 +469,7 @@ export default {
       }
       if (this.kind === "search") return this.search ? t("dn.ls.resultsFor", "Results for “{q}”", { q: this.search }) : t("ly.ls.search", "Search");
       if (this.kind === "deals") return a ? this.audTitle(a, t("dn.ls.deals", "Deals")) : t("dn.ls.deals", "Deals");
+      if (this.brandQ) return a ? this.audTitle(a, this.brandQ) : this.brandQ;
       return a ? audienceLabel(a) : t("ly.ls.all", "Shop all");
     },
     crumbs() {
@@ -475,9 +481,11 @@ export default {
       }
       if (this.kind === "search") return [{ label: t("ly.ls.search", "Search") }];
       if (this.kind === "deals") return [...audCrumb, { label: t("dn.ls.deals", "Deals") }];
+      if (this.brandQ) return [...audCrumb, { label: this.brandQ }];
       return a ? [{ label: audienceLabel(a) }] : [{ label: t("ly.ls.all", "Shop all") }];
     },
     lead() {
+      if (this.brandQ) return t("ly.ls.brandLead", { one: "{n} piece from {brand}.", other: "{n} pieces from {brand}." }, { n: this.base.length, brand: this.brandQ });
       if (this.kind !== "deals") return "";
       const offs = this.base.map((p) => percentOff(this.shop, p)).filter((x) => x > 0);
       return offs.length ? t("dn.ls.dealsLead", "Up to {off}% off, already in the price.", { off: Math.max(...offs) }) : t("ly.ls.dealsNone", "Sale styles show here when the store has some.");
@@ -719,6 +727,12 @@ export default {
     resetRange() {
       this.min = this.lo;
       this.max = this.hi;
+      /* ?price=lo-hi (a mega menu's price bands, a home tile) */
+      const m = String(this.$route?.query?.price || "").match(/^([0-9]*)-([0-9]*)$/);
+      if (m && this.hi > this.lo) {
+        if (m[1]) this.min = Math.max(this.lo, Math.min(this.hi, Number(m[1])));
+        if (m[2]) this.max = Math.min(this.hi, Math.max(this.min, Number(m[2])));
+      }
     },
     /* The part of the header that stays on screen (its height less the top bar that scrolls away). */
     measureTop() {
@@ -740,7 +754,8 @@ export default {
       const cs = getComputedStyle(g);
       const cols = parseInt(cs.getPropertyValue("--ly-cols"), 10) || 3;
       const gap = parseFloat(cs.columnGap) || 0;
-      this.fitStyle = n && n < cols ? { gridTemplateColumns: `repeat(${n}, calc((100% - ${(cols - 1) * gap}px) / ${cols}))` } : null;
+      /* the cards keep their width and start the row (the owner, 23 Nov 2026: a lone result sat in the middle) */
+      this.fitStyle = n && n < cols ? { gridTemplateColumns: `repeat(${n}, calc((100% - ${(cols - 1) * gap}px) / ${cols}))`, justifyContent: "start" } : null;
     },
     /* Dim, say "Updating results…", then draw the new list fading up. */
     update() {
